@@ -1,0 +1,82 @@
+
+  #item-1:checked ~ .cards #song-1,
+  #item-2:checked ~ .cards #song-2,
+  #item-3:checked ~ .cards #song-3 {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+    z-index: 1;
+  }
+  
+  #item-1:checked ~ .cards #song-2,
+  #item-2:checked ~ .cards #song-3,
+  #item-3:checked ~ .cards #song-1 {
+    transform: translateX(40%) scale(0.8);
+    opacity: 0.4;
+    z-index: 0;
+  }
+  
+  #item-1:checked ~ .cards #song-3,
+  #item-2:checked ~ .cards #song-1,
+  #item-3:checked ~ .cards #song-2 {
+    transform: translateX(-40%) scale(0.8);
+    opacity: 0.4;
+    z-index: 0;
+  }
+  
+  .player {
+    width: 70%;
+    margin: auto;
+    margin-top: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .upper-part {
+    position: relative;
+    height: 60px; /* Adjusted height for proper content display */
+    overflow: hidden;
+  }
+  
+  .info-area {
+    position: relative;
+    margin: auto;
+    width: 60%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.4s ease-in-out;
+  }
+  
+  .song-info {
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    transition: opacity 0.4s ease, z-index 0.4s ease;
+  }
+  
+  #item-1:checked ~ .player #song-info-1,
+  #item-2:checked ~ .player #song-info-2,
+  #item-3:checked ~ .player #song-info-3 {
+    opacity: 1;
+    z-index: 1;
+  }
+  
+  .names {
+    font-size: 14px;
+    font-weight: bold;
+    color: #000;
+  }
+  
+  .comments {
+    font-size: 12px;
+    color: #555;
+    margin-top: 5px;
+  }
+  
