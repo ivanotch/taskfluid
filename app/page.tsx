@@ -82,8 +82,11 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="h-[15vh] bg-cover bg-center rounded-[5px] bg-[#18181B] text-center flex justify-center items-center">
-        <p className="text-gray-400 font-main text-[2.3rem] font-bold">Start using TaskFlow today and take control of your tasks!</p>
+      <section className="h-[15vh] bg-cover bg-center rounded-[5px] bg-gray-500 flex justify-center items-center">
+        <div className="flex">
+          <button className="px-6 py-2 border border-gray-300 rounded-full hover:bg-gray-200 mr-[3rem]">Get Started</button>
+          <p className="text-gray-200 font-main text-[1.6rem] font-bold">Start using TaskFlow today and take control of your tasks!</p>
+        </div>
       </section>
 
 
