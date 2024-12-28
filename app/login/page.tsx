@@ -1,7 +1,6 @@
 'use client'
 
 import ButtonGradient from '@/components/Buttons/Button-gradient/Button';
-import Link from 'next/link';
 
 export default function LoginPage() {
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -23,23 +22,23 @@ export default function LoginPage() {
       <div className="w-[50%] h-[100%] bg-white flex flex-col items-center justify-center">
         <div className='flex flex-col items-center mt-[1.5rem] mb-[4rem]'>
           <span className='text-[3.5rem] font-main leading-[3rem]'>Welcome Back!</span>
-          <span className='text-[1.2rem] font-inter'>Don't have an account?  <a href="">Sign up</a></span>
+          <span className='text-[1.2rem] font-inter'>Don't have an account?  <a href="/signup">Sign up</a></span>
         </div>
         <form className='w-[45%] text-center mb-[4rem]'>
           <div className="relative mb-[2rem] pt-4 mt-2">
             <input
-              type="text"
-              id="name"
-              name="name"
-              placeholder="Name"
+              type="email"
+              id="email"
+              name="email"
+              placeholder="Email"
               required
               className="peer w-full bg-transparent border-b-2 border-gray-600 text-black text-lg focus:outline-none focus:ring-0 focus:border-gradient-to-r focus:border-primary-to-secondary transition-all duration-200 placeholder-transparent"
             />
             <label
-              htmlFor="name"
+              htmlFor="email"
               className=" absolute left-0 top-0 text-gray-600 text-sm transition-all duration-200 ease-in-out transform peer-placeholder-shown:text-lg peer-placeholder-shown:text-gray-500 peer-placeholder-shown:top-5 peer-focus:text-sm peer-focus:text-primary peer-focus:font-semibold peer-focus:top-0"
             >
-              Name
+              Email
             </label>
           </div>
 
