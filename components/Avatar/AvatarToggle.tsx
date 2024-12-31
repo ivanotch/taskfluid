@@ -1,7 +1,7 @@
 'use client'
 import React, { useState } from "react";
 
-export default function AvatarToggle() {
+export default function AvatarToggle({email, name, avatar}: {email: string, name: string, avatar: string}) {
   const [isDropdownVisible, setDropdownVisible] = useState(false);
 
   const toggleDropdown = () => {
@@ -15,7 +15,7 @@ export default function AvatarToggle() {
         id="avatarButton"
         onClick={toggleDropdown}
         className="w-10 h-10 rounded-full cursor-pointer"
-        src="/docs/images/people/profile-picture-5.jpg"
+        src={avatar}
         alt="User dropdown"
       />
 
@@ -26,13 +26,13 @@ export default function AvatarToggle() {
           className="z-10 absolute right-0 bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600"
         >
           <div className="px-4 py-3 text-sm text-gray-900 dark:text-white">
-            <div>Bonnie Green</div>
-            <div className="font-medium truncate">name@flowbite.com</div>
+            <div>{name}</div>
+            <div className="font-medium truncate">{email}</div>
           </div>
           <ul className="py-2 text-sm text-gray-700 dark:text-gray-200">
             <li>
               <a
-                href="#"
+                href="/dashboard"
                 className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
               >
                 Dashboard
@@ -40,24 +40,16 @@ export default function AvatarToggle() {
             </li>
             <li>
               <a
-                href="#"
+                href="/profile"
                 className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
               >
                 Settings
               </a>
             </li>
-            <li>
-              <a
-                href="#"
-                className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-              >
-                Earnings
-              </a>
-            </li>
           </ul>
           <div className="py-1">
             <a
-              href="#"
+              href="/login"
               className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
             >
               Sign out

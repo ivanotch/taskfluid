@@ -1,10 +1,10 @@
 import React from "react";
 import './styles.css'
 
-const NavToggle = () => (
+const NavToggle = ({toggleSideBar}: {toggleSideBar:any}) => (
   <div className="body">
     <div className="nav">
-      <input type="checkbox" className="checkbox" />
+      <input type="checkbox" className="checkbox" onChange={(e) => toggleSideBar(e.target.checked)}/>
       <svg xmlns="http://www.w3.org/2000/svg" className="svg">
         <use xlinkHref="#menu" />
         <use xlinkHref="#menu" />
