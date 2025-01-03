@@ -6,6 +6,65 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  tasks     Task[]   // Relation: A user can create multiple tasks
+  sharedTasks SharedTask[] // Relation: A user can have tasks shared with them
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Task {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  status      TaskStatus @default(PENDING)
+  priority    TaskPriority @default(MEDIUM)
+  deadline    DateTime?
+  creatorId   String
+  creator     User      @relation(fields: [creatorId], references: [id])
+  sharedWith  SharedTask[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SharedTask {
+  id        String   @id @default(uuid())
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  @@unique([taskId, userId])  // Composite unique constraint
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+// const TaskStatus = {
+//   PENDING: "PENDING",
+//   IN_PROGRESS: "IN_PROGRESS",
+//   COMPLETED: "COMPLETED"
+// };
+
+// const TaskPriority = {
+//   LOW: "LOW",
+//   MEDIUM: "MEDIUM",
+//   HIGH: "HIGH"
+// };
