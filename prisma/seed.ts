@@ -1,27 +1,32 @@
 import { PrismaClient, TaskStatus, TaskPriority } from "@prisma/client";
+import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
 async function main() {
+
+  const hashedPassword1 = await bcrypt.hash("hashedPassword123", 10);
   const user1 = await prisma.user.upsert({
     where: { email: "johndoe@example.com" },
-    update: {},
+    update: {password: hashedPassword1},
     create: {
       name: "John Doe",
       email: "johndoe@example.com",
-      password: "hashedPassword123",
+      password: hashedPassword1,
     },
   });
 
+  const hashedPassword2 = await bcrypt.hash("hashedPassword456", 10);
   const user2 = await prisma.user.upsert({
     where: { email: "janesmith@example.com" },
-    update: {},
+    update: {password: hashedPassword2},
     create: {
       name: "Jane Smith",
       email: "janesmith@example.com",
-      password: "hashedPassword456",
+      password: hashedPassword2,
     },
   });
+
 
   const task1 = await prisma.task.upsert({
     where: { id: "task1-id" },

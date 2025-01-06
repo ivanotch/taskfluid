@@ -1,12 +1,33 @@
 'use client'
 import React, { useState } from "react";
+import { useRouter } from 'next/navigation';
 
 export default function AvatarToggle({email, name, avatar}: {email: string, name: string, avatar: string}) {
   const [isDropdownVisible, setDropdownVisible] = useState(false);
-
+  const router = useRouter();
+  
   const toggleDropdown = () => {
     setDropdownVisible(!isDropdownVisible);
   };
+
+  const handleLogout = async () => {
+    try {
+      const res = await fetch('/api/auth/logout', { // Add leading slash
+        method: 'POST',
+      });
+  
+      if (res.ok) {
+        console.log(await res.json()); // Optional: Log the server response
+        localStorage.removeItem('user'); // Optional: Clear local state
+        router.push('/login'); // Redirect to login after logout
+      } else {
+        console.error('Failed to log out', res.status);
+      }
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
+  
 
   return (
     <div className="relative inline-block">
@@ -48,12 +69,12 @@ export default function AvatarToggle({email, name, avatar}: {email: string, name
             </li>
           </ul>
           <div className="py-1">
-            <a
-              href="/login"
+            <button
+              onClick={handleLogout}
               className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
             >
               Sign out
-            </a>
+            </button>
           </div>
         </div>
       )}

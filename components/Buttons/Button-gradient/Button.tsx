@@ -1,8 +1,9 @@
 
 import './styles.css';
 
-export default function ButtonGradient({input}: {input: string}) {
+export default function ButtonGradient({children, onClick}: {children: string, onClick: () => void}) {
+    
     return (
-        <button type='submit'>{input}</button>
+        <button onClick={onClick}>{children}</button>
     );
 }

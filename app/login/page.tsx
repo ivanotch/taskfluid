@@ -1,12 +1,35 @@
 'use client'
 
+import { useState } from 'react';
 import ButtonGradient from '@/components/Buttons/Button-gradient/Button';
 
 export default function LoginPage() {
-  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    // Handle login logic here
-  };
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errors, setError] = useState('');
+
+  const handleLogin = async() => {
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({email, password})
+      })
+
+      if (!res.ok) {
+        const data = await res.json();
+        console.log('something is wrong');
+        setError(data.error);
+      } else {
+        alert('Login successful');
+        window.location.href = '/dashboard';
+      }
+
+    } catch (error) {
+      console.error("An unexpected error occurred haha:", errors);
+    }
+  }
 
   return (
     <main className="flex items-center justify-center h-[100vh] px-[1rem] py-[1rem] overflow-hidden" style={{ margin: '-0.5rem -1rem' }}>
@@ -24,7 +47,7 @@ export default function LoginPage() {
           <span className='text-[3.5rem] font-main leading-[3rem]'>Welcome Back!</span>
           <span className='text-[1.2rem] font-inter'>Don't have an account?  <a href="/signup">Sign up</a></span>
         </div>
-        <form className='w-[45%] text-center mb-[4rem]'>
+        <div className='w-[45%] text-center mb-[4rem]'>
           <div className="relative mb-[2rem] pt-4 mt-2">
             <input
               type="email"
@@ -32,6 +55,7 @@ export default function LoginPage() {
               name="email"
               placeholder="Email"
               required
+              onChange={(e) => setEmail(e.target.value)}
               className="peer w-full bg-transparent border-b-2 border-gray-600 text-black text-lg focus:outline-none focus:ring-0 focus:border-gradient-to-r focus:border-primary-to-secondary transition-all duration-200 placeholder-transparent"
             />
             <label
@@ -49,6 +73,7 @@ export default function LoginPage() {
               name="password"
               placeholder="password"
               required
+              onChange={(e) => setPassword(e.target.value)}
               className="peer w-full bg-transparent border-b-2 border-gray-600 text-black text-lg focus:outline-none focus:ring-0 focus:border-gradient-to-r focus:border-primary-to-secondary transition-all duration-200 placeholder-transparent"
             />
             <label
@@ -58,8 +83,8 @@ export default function LoginPage() {
               password
             </label>
           </div>
-          <ButtonGradient input="Log In" />
-        </form>
+          <ButtonGradient onClick={handleLogin}>Log in</ButtonGradient>
+        </div>
       </div>
 
     </main>

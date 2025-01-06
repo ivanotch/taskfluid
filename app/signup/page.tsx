@@ -3,8 +3,7 @@
 import ButtonGradient from '@/components/Buttons/Button-gradient/Button';
 
 export default function SignupPage() {
-    const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
+    const handleSignup = async() => {
         // Handle login logic here
     };
 
@@ -95,7 +94,7 @@ export default function SignupPage() {
                             password
                         </label>
                     </div>
-                    <ButtonGradient input="Sign Up" />
+                    <ButtonGradient onClick={handleSignup} input="Sign Up" />
                 </form>
             </div>
 
