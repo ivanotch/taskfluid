@@ -4,6 +4,7 @@ import LeftBarToggle from "./LeftBarToggle"
 
 //should be server side rendered
 export default function Dashboard() {
+    
 
     const users = {
         [1]: {

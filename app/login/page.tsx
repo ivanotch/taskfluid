@@ -22,7 +22,7 @@ export default function LoginPage() {
         console.log('something is wrong');
         setError(data.error);
       } else {
-        alert('Login successful');
+        // alert('Login successful');
         window.location.href = '/dashboard';
       }
 

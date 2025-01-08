@@ -32,5 +32,5 @@ export async function middleware(req: Request) {
 }
 
 export const config = {
-    matcher: ['/dashboard/:path*', '/task/:path*'], // Apply to specific routes
+    matcher: ['/dashboard/:path*', '/task/:path*', '/sharedTask/:path*', '/profile/:path*'], // Apply to specific routes
 };

@@ -1,10 +1,34 @@
 'use client'
-
 import ButtonGradient from '@/components/Buttons/Button-gradient/Button';
+import { useState } from 'react';
 
 export default function SignupPage() {
+    const [firstname, setFirstname] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState('');
+
     const handleSignup = async() => {
-        // Handle login logic here
+        try {
+            const name = `${firstname} ${lastName}`;
+            const res = await fetch('/api/auth/signup', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name, email, password})
+            })
+
+            if(!res.ok) {
+                const data = await res.json();
+                console.log('something is wrong');
+                setError(data.error);
+            } else {
+                // alert('Signup successful');
+                window.location.href = '/login';
+            }
+        } catch(error) {
+            console.error("An unexpected error occurred:", error);
+        }
     };
 
     return (
@@ -33,6 +57,7 @@ export default function SignupPage() {
                                 name="firstname"
                                 placeholder="First Name"
                                 required
+                                onChange={(e) => setFirstname(e.target.value)}
                                 className="peer w-full bg-transparent border-b-2 border-gray-600 text-black text-lg focus:outline-none focus:ring-0 focus:border-gradient-to-r focus:border-primary-to-secondary transition-all duration-200 placeholder-transparent"
                             />
                             <label
@@ -50,6 +75,7 @@ export default function SignupPage() {
                                 name="lastname"
                                 placeholder="Last Name"
                                 required
+                                onChange={(e) => setLastName(e.target.value)}
                                 className="peer w-full bg-transparent border-b-2 border-gray-600 text-black text-lg focus:outline-none focus:ring-0 focus:border-gradient-to-r focus:border-primary-to-secondary transition-all duration-200 placeholder-transparent"
                             />
                             <label
@@ -68,6 +94,7 @@ export default function SignupPage() {
                             name="email"
                             placeholder="Email"
                             required
+                            onChange={(e) => setEmail(e.target.value)}
                             className="peer w-full bg-transparent border-b-2 border-gray-600 text-black text-lg focus:outline-none focus:ring-0 focus:border-gradient-to-r focus:border-primary-to-secondary transition-all duration-200 placeholder-transparent"
                         />
                         <label
@@ -85,6 +112,7 @@ export default function SignupPage() {
                             name="password"
                             placeholder="password"
                             required
+                            onChange={(e) => setPassword(e.target.value)}
                             className="peer w-full bg-transparent border-b-2 border-gray-600 text-black text-lg focus:outline-none focus:ring-0 focus:border-gradient-to-r focus:border-primary-to-secondary transition-all duration-200 placeholder-transparent"
                         />
                         <label
@@ -94,7 +122,7 @@ export default function SignupPage() {
                             password
                         </label>
                     </div>
-                    <ButtonGradient onClick={handleSignup} input="Sign Up" />
+                    <ButtonGradient onClick={handleSignup}>Sign Up</ButtonGradient>
                 </form>
             </div>
 
