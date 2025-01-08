@@ -1,8 +1,7 @@
 import AvatarToggle from "@/components/Avatar/AvatarToggle"
 import Layout from "@/components/Layout/Layout"
-// import NavToggle from "@/components/Navtoggle/NavToggle"
-// import Sidebar from "@/components/Sidebar/page"
 import LeftBarToggle from "./LeftBarToggle"
+
 //should be server side rendered
 export default function Dashboard() {
 
@@ -194,3 +193,4 @@ export default function Dashboard() {
 
     )
 }  
+
