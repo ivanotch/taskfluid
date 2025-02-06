@@ -3,6 +3,8 @@ import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
+//change the type in package.json to "commonjs" to run npm run seed
+
 async function main() {
 
   const hashedPassword1 = await bcrypt.hash("hashedPassword123", 10);
@@ -38,6 +40,35 @@ async function main() {
       status: TaskStatus.PENDING,
       priority: TaskPriority.HIGH,
       creatorId: user1.id,
+      deadline: new Date("2024-02-10T23:59:59Z"),
+    },
+  });
+
+  const task3 = await prisma.task.upsert({
+    where: { id: "task3-id" },
+    update: {},
+    create: {
+      id: "task3-id",
+      title: "Finish Eating Assignment",
+      description: "Complete the full-stack assignment by end of the week.",
+      status: TaskStatus.IN_PROGRESS,
+      priority: TaskPriority.HIGH,
+      creatorId: user1.id,
+      deadline: new Date("2024-02-10T23:59:59Z"),
+    },
+  });
+
+  const task4 = await prisma.task.upsert({
+    where: { id: "task4-id" },
+    update: {},
+    create: {
+      id: "task4-id",
+      title: "Finish pooping Assignment",
+      description: "Complete the full-stack assignment by end of the week.",
+      status: TaskStatus.COMPLETED,
+      priority: TaskPriority.LOW,
+      creatorId: user1.id,
+      deadline: new Date("2024-02-10T23:59:59Z"),
     },
   });
 
@@ -51,6 +82,7 @@ async function main() {
       status: TaskStatus.IN_PROGRESS,
       priority: TaskPriority.MEDIUM,
       creatorId: user2.id,
+      deadline: new Date("2024-02-10T23:59:59Z"),
     },
   });
 
@@ -65,6 +97,7 @@ async function main() {
       taskId: task1.id,
       userId: user2.id,
     },
+    
   });
 
   const sharedTask2 = await prisma.sharedTask.upsert({

@@ -27,7 +27,7 @@ model Task {
   description String?
   status      TaskStatus @default(PENDING)
   priority    TaskPriority @default(MEDIUM)
-  deadline    DateTime?
+  deadline    DateTime
   creatorId   String
   creator     User      @relation(fields: [creatorId], references: [id])
   sharedWith  SharedTask[]
