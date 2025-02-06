@@ -1,9 +1,33 @@
+'use client';
+
 import Layout from "@/components/Layout/Layout"
 import AvatarToggle from "@/components/Avatar/AvatarToggle"
 import { FcFullTrash } from "react-icons/fc";
-
+import { useState, useEffect, use } from "react";
 
 export default function Task() {
+    const [tasks, setTasks] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function fetchTasks() {
+
+            const response = await fetch('/api/data/tasks/', {
+                method: 'GET',
+                credentials: 'include',
+            });
+
+            const data = await response.json();
+            setTasks(data);
+            setLoading(false);
+        }
+        fetchTasks();
+    }, []);
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+
 
     const users = {
         [1]: {
@@ -12,7 +36,7 @@ export default function Task() {
             image: "https://randomuser.me/api/portraits",
             email: "mae@gmail.com",
             password: "password",
-            tasks: [],
+            task: [],
             sharedTask: [],
             createdAt: new Date(),
             updatedAt: new Date(),
@@ -23,7 +47,7 @@ export default function Task() {
             image: "https://randomuser.me/api/portraits",
             email: "john@gmail.com",
             password: "password",
-            tasks: [],
+            task: [],
             sharedTask: [],
             createdAt: new Date(),
             updatedAt: new Date(),
@@ -35,7 +59,7 @@ export default function Task() {
             image: "https://randomuser.me/api/portraits",
             email: "jean@gmail.com",
             password: "password",
-            tasks: [],
+            task: [],
             sharedTask: [],
             createdAt: new Date(),
             updatedAt: new Date(),
@@ -43,7 +67,7 @@ export default function Task() {
         }
     }
 
-    const tasks = [
+    const task = [
         {
             id: 1,
             title: "Task 1",
@@ -110,7 +134,7 @@ export default function Task() {
                     <div className="relative overflow-hidden shadow-lg rounded-lg w-full bg-gray-100">
                         <div className="text-lg text-left text-gray-600 bg-white shadow-sm rounded-md">
 
-                            {tasks.map((task, index) => (
+                            {task.map((task, index) => (
                                 <div
                                     key={index}
                                     className="flex items-center justify-between p-4 bg-white border-b last:border-0 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300"
