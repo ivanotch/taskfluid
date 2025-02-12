@@ -98,7 +98,7 @@ export default function Task() {
         }
     }
 
-    function handleClicked({task}: {task:any}) {
+    function handleClicked({ task }: { task: any }) {
         setChosenTask({
             id: task.id,
             title: task.title,
@@ -113,6 +113,29 @@ export default function Task() {
             updatedAt: task.updatedAt,
         });
         setClicked(true);
+    }
+
+    async function handleDone() {
+
+        try {
+            const res = await fetch("/api/data/edit/", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body:JSON.stringify({taskId: chosenTask.id, action: "updateStatus" , data: {status: "COMPLETED"}}),
+            });
+
+            const data = await res.json();
+            console.log(data);
+            setChosenTask({
+                ...chosenTask,
+                status: data.status,
+            });
+            console.log("Status updated successfully");
+        } catch (error) {
+            console.log("Error updating status", error);
+        }
     }
 
     return (
@@ -150,7 +173,7 @@ export default function Task() {
                                     {display === "TASK" ? tasks.map((task, index) => (
                                         <div
                                             key={index}
-                                            onClick={() => handleClicked({task}) }
+                                            onClick={() => handleClicked({ task })}
                                             className="flex items-center justify-between p-4 bg-white border-b last:border-0 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300"
                                         >
                                             <div className="w-2/3 font-medium text-gray-900 truncate dark:text-white">
@@ -242,7 +265,7 @@ export default function Task() {
                         </div>
                         <div className="title flex justify-between items-center p-[1.5rem] w-[80%] mt-[4rem] mx-auto border-b border-gray-500 p-4">
                             <div className="flex gap-[1.5rem]">
-                                <Avatar/>
+                                <Avatar />
                                 <div className="flex flex-col">
                                     <span className="text-[1.7rem] font-main">{chosenTask.title}</span>
                                     <span>{formatDate(chosenTask.createdAt)}</span>
@@ -255,15 +278,15 @@ export default function Task() {
 
                         <div className="h-[15rem] description w-[80%] mt-[2rem] pb-[2rem] mx-auto border-b border-gray-500 overflow-y-auto scrollbar-hide">
                             {/* <p className="text-[1.1rem] font-sub">{chosenTask.description}</p> */}
-                            <p className="text-[1.1rem] font-sub">Lorem Ipsum is simply dummy text of the printing and typesetting industry. 
-                                Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, 
-                                when an unknown printer took a galley of type and scrambled it to make a type specimen book. 
-                                It has survived not only five centuries, but also the leap into electronic typesetting, 
+                            <p className="text-[1.1rem] font-sub">Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+                                Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
+                                when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+                                It has survived not only five centuries, but also the leap into electronic typesetting,
                                 remaining essentially unchanged.
-                                Lorem Ipsum is simply dummy text of the printing and typesetting industry. 
-                                Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, 
-                                when an unknown printer took a galley of type and scrambled it to make a type specimen book. 
-                                It has survived not only five centuries, but also the leap into electronic typesetting, 
+                                Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+                                Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
+                                when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+                                It has survived not only five centuries, but also the leap into electronic typesetting,
                                 remaining essentially unchanged</p>
                         </div>
 
@@ -275,9 +298,14 @@ export default function Task() {
                             </ul>
                         </div>
 
-                        <div className="buttons w-[80%] mt-[3rem] mx-auto">
-                            <button>Edit</button>
-                            <button>Mark as Done</button>
+                        <div className="buttons w-[80%] mt-[3rem] mx-auto gap-[1rem] flex justify-center items-center">
+                            <button className="px-4 py-2 border-2 border-slate-500 text-slate-500 font-semibold rounded-lg transition duration-300 hover:bg-blue-100 hover:border-blue-400">
+                                Edit
+                            </button>
+
+                            <button onClick={() => handleDone()} className="px-4 py-2 border-2 border-slate-500 text-slate-500 font-semibold rounded-lg transition duration-300 hover:bg-blue-100 hover:border-blue-400">
+                                Marked as Done
+                            </button>
                         </div>
                     </div>
                 )}
