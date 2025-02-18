@@ -5,6 +5,7 @@ import AvatarToggle from "@/components/Avatar/AvatarToggle"
 import { FcFullTrash } from "react-icons/fc";
 import { useState, useEffect, use } from "react";
 import Avatar from "@/components/Avatar/Avatar";
+import TaskForm from "./editTask";
 
 export default function Task() {
     useEffect(() => {
@@ -39,6 +40,7 @@ export default function Task() {
         createdAt: "",
         updatedAt: "",
     });
+    const [edit, setEdit] = useState(false);
 
     const formatDate = (isoString: string) => {
         const date = new Date(isoString);
@@ -123,7 +125,7 @@ export default function Task() {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body:JSON.stringify({taskId: chosenTask.id, action: "updateStatus" , data: {status: "COMPLETED"}}),
+                body: JSON.stringify({ taskId: chosenTask.id, action: "updateStatus", data: { status: "COMPLETED" } }),
             });
 
             const data = await res.json();
@@ -136,6 +138,10 @@ export default function Task() {
         } catch (error) {
             console.log("Error updating status", error);
         }
+    }
+
+    function handleEdit() {
+        setEdit(true);
     }
 
     return (
@@ -257,59 +263,61 @@ export default function Task() {
                         </div>
                     </div>
                 ) : (
-                    <div className="">
-                        <div className="text-center border-b-[1px] border-t-[1px] border-r-[1px] border-gray-400 h-[4rem] flex items-center justify-between w-[100%] pr-[1.5rem]">
-                            <button onClick={() => setClicked(false)} className="ml-[1rem]">Back</button>
-                            <span className="tracking-[0.2rem] font-[600] text-[1.7rem] font-sub ">Task</span>
-                            <AvatarToggle name={users[1].name} avatar={users[1].image} email={users[1].email} />
+                    edit ? (
+                        <div className="w-[60%] mx-auto mt-[4rem]">
+                            <button onClick={() => setEdit(false)} className="mb-[1rem]">{`<`} Return</button>
+                            <TaskForm task={chosenTask} />
                         </div>
-                        <div className="title flex justify-between items-center p-[1.5rem] w-[80%] mt-[4rem] mx-auto border-b border-gray-500 p-4">
-                            <div className="flex gap-[1.5rem]">
-                                <Avatar />
-                                <div className="flex flex-col">
-                                    <span className="text-[1.7rem] font-main">{chosenTask.title}</span>
-                                    <span>{formatDate(chosenTask.createdAt)}</span>
+                    ) : (
+                        <div className="">
+                            <div className="text-center border-b-[1px] border-t-[1px] border-r-[1px] border-gray-400 h-[4rem] flex items-center justify-between w-[100%] pr-[1.5rem]">
+                                <button onClick={() => setClicked(false)} className="ml-[1rem]">Back</button>
+                                <span className="tracking-[0.2rem] font-[600] text-[1.7rem] font-sub ">Task</span>
+                                <AvatarToggle name={users[1].name} avatar={users[1].image} email={users[1].email} />
+                            </div>
+                            <div className="title flex justify-between items-center p-[1.5rem] w-[80%] mt-[4rem] mx-auto border-b border-gray-500 p-4">
+                                <div className="flex gap-[1.5rem]">
+                                    <Avatar />
+                                    <div className="flex flex-col">
+                                        <span className="text-[1.7rem] font-main">{chosenTask.title}</span>
+                                        <span>{formatDate(chosenTask.createdAt)}</span>
+                                    </div>
+                                </div>
+                                <div className="self-start">
+                                    <button>share</button>
                                 </div>
                             </div>
-                            <div className="self-start">
-                                <button>share</button>
+
+                            <div className="h-[15rem] description w-[80%] mt-[2rem] pb-[2rem] mx-auto border-b border-gray-500 overflow-y-auto scrollbar-hide">
+                                <p className="text-[1.1rem] font-sub">{chosenTask.description}</p>
+                            </div>
+
+                            <div className="status w-[80%] mt-[4rem] mx-auto border-b border-gray-500 pb-[3rem]">
+                                <ul className="text-[1.1rem] font-sub">
+                                    <li className="mb-[0.5rem]">Priority: {chosenTask.priority}</li>
+                                    <li className="mb-[0.5rem]">Status: {chosenTask.status}</li>
+                                    <li className="mb-[0.5rem]">Deadline: {formatDate(chosenTask.deadline)}</li>
+                                </ul>
+                            </div>
+
+                            <div className="buttons w-[80%] mt-[3rem] mx-auto gap-[1rem] flex justify-center items-center">
+                                <button onClick={() => handleEdit()} className="px-4 py-2 border-2 border-slate-500 text-slate-500 font-semibold rounded-lg transition duration-[300] hover:bg-blue-100 hover:border-blue-400">
+                                    Edit
+                                </button>
+
+                                {chosenTask.status !== "COMPLETED" ? (
+                                    <button onClick={() => handleDone()} className="px-4 py-2 border-2 border-slate-500 text-slate-500 font-semibold rounded-lg transition duration-[300] hover:bg-blue-100 hover:border-blue-400">
+                                        Mark as Done
+                                    </button>
+                                ) : (
+                                    <button disabled onClick={() => handleDone()} className="px-4 py-2 border-2 border-slate-400 text-slate-300 font-semibold rounded-lg">
+                                        Marked as Done
+                                    </button>
+                                )}
                             </div>
                         </div>
-
-                        <div className="h-[15rem] description w-[80%] mt-[2rem] pb-[2rem] mx-auto border-b border-gray-500 overflow-y-auto scrollbar-hide">
-                            {/* <p className="text-[1.1rem] font-sub">{chosenTask.description}</p> */}
-                            <p className="text-[1.1rem] font-sub">Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-                                Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
-                                when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-                                It has survived not only five centuries, but also the leap into electronic typesetting,
-                                remaining essentially unchanged.
-                                Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-                                Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
-                                when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-                                It has survived not only five centuries, but also the leap into electronic typesetting,
-                                remaining essentially unchanged</p>
-                        </div>
-
-                        <div className="status w-[80%] mt-[4rem] mx-auto border-b border-gray-500 pb-[3rem]">
-                            <ul className="text-[1.1rem] font-sub">
-                                <li className="mb-[0.5rem]">Priority: {chosenTask.priority}</li>
-                                <li className="mb-[0.5rem]">Status: {chosenTask.status}</li>
-                                <li className="mb-[0.5rem]">Deadline: {formatDate(chosenTask.deadline)}</li>
-                            </ul>
-                        </div>
-
-                        <div className="buttons w-[80%] mt-[3rem] mx-auto gap-[1rem] flex justify-center items-center">
-                            <button className="px-4 py-2 border-2 border-slate-500 text-slate-500 font-semibold rounded-lg transition duration-300 hover:bg-blue-100 hover:border-blue-400">
-                                Edit
-                            </button>
-
-                            <button onClick={() => handleDone()} className="px-4 py-2 border-2 border-slate-500 text-slate-500 font-semibold rounded-lg transition duration-300 hover:bg-blue-100 hover:border-blue-400">
-                                Marked as Done
-                            </button>
-                        </div>
-                    </div>
+                    )
                 )}
-
 
 
 
