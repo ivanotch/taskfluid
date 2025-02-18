@@ -20,6 +20,13 @@ export async function PUT(req: Request) {
             });
         }
 
+        else if (action === "editTask") {
+            updatedTask = await prisma.task.update({
+                where: { id: taskId },
+                data: { ...data, updatedAt: new Date(), deadline: new Date(data.deadline) },
+            });
+        }
+
         else {
             return new Response(JSON.stringify({ error: "Invalid action" }), { status: 400 });
         }

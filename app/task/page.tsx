@@ -60,7 +60,7 @@ export default function Task() {
     const now = new Date();
     const completedTask = tasks.filter(task => task.status === "COMPLETED");
     const inProgressTask = tasks.filter(task => task.status === "IN_PROGRESS");
-    const upcomingTasks = tasks.filter((task) => new Date(task.deadline) >= now);
+    const upcomingTasks = tasks.filter((task) => new Date(task.deadline) <= now && task.status !== "COMPLETED");
 
     const users = {
         [1]: {
@@ -280,7 +280,11 @@ export default function Task() {
                                     <Avatar />
                                     <div className="flex flex-col">
                                         <span className="text-[1.7rem] font-main">{chosenTask.title}</span>
-                                        <span>{formatDate(chosenTask.createdAt)}</span>
+                                        {formatDate(chosenTask.createdAt) !== formatDate(chosenTask.updatedAt) ? (
+                                            <span>Updated At: {formatDate(chosenTask.updatedAt)}</span>
+                                        ) : (
+                                            <span>{formatDate(chosenTask.createdAt)}</span>
+                                        )}
                                     </div>
                                 </div>
                                 <div className="self-start">
