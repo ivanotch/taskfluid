@@ -58,9 +58,12 @@ export default function Task() {
     }
 
     const now = new Date();
+    const overdueTask = tasks.filter((task) => new Date(task.deadline) <= now && task.status !== "COMPLETED");
     const completedTask = tasks.filter(task => task.status === "COMPLETED");
-    const inProgressTask = tasks.filter(task => task.status === "IN_PROGRESS");
-    const upcomingTasks = tasks.filter((task) => new Date(task.deadline) <= now && task.status !== "COMPLETED");
+    const inProgressTask = tasks.filter(task => task.status === "IN_PROGRESS"  && new Date(task.deadline) >= now);
+    const allIncomplete = tasks.filter(task => task.status !== "COMPLETED" && new Date(task.deadline) >= now);
+
+    
 
     const users = {
         [1]: {
@@ -176,7 +179,7 @@ export default function Task() {
                             <div className="relative overflow-hidden shadow-lg rounded-lg w-full bg-gray-100">
                                 <div className="text-lg text-left text-gray-600 bg-white shadow-sm rounded-md">
 
-                                    {display === "TASK" ? tasks.map((task, index) => (
+                                    {display === "TASK" ? allIncomplete.length > 0 ? allIncomplete.map((task, index) => (
                                         <div
                                             key={index}
                                             onClick={() => handleClicked({ task })}
@@ -194,12 +197,13 @@ export default function Task() {
                                                 </span>
                                             </div>
                                         </div>
-                                    )) ?? <p>Loading...</p> : null}
+                                    )) : <div>No task for now.</div> : null
+                                    }
 
                                     {display === "COMPLETED" ? completedTask.length > 0 ? completedTask.map((task, index) => (
                                         <div
                                             key={index}
-                                            onClick={() => setClicked(true)}
+                                            onClick={() => handleClicked({ task })}
                                             className="flex items-center justify-between p-4 bg-white border-b last:border-0 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300"
                                         >
                                             <div className="w-2/3 font-medium text-gray-900 truncate dark:text-white">
@@ -220,7 +224,7 @@ export default function Task() {
                                     {display === "IN_PROGRESS" ? inProgressTask.length > 0 ? inProgressTask.map((task, index) => (
                                         <div
                                             key={index}
-                                            onClick={() => setClicked(true)}
+                                            onClick={() => handleClicked({ task })}
                                             className="flex items-center justify-between p-4 bg-white border-b last:border-0 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300"
                                         >
                                             <div className="w-2/3 font-medium text-gray-900 truncate dark:text-white">
@@ -238,10 +242,10 @@ export default function Task() {
                                     )) : <div>Don't be lazy, Start some tasks!!</div> : null
                                     }
 
-                                    {display === "MISSING" ? upcomingTasks.length > 0 ? upcomingTasks.map((task, index) => (
+                                    {display === "MISSING" ? overdueTask.length > 0 ? overdueTask.map((task, index) => (
                                         <div
                                             key={index}
-                                            onClick={() => setClicked(true)}
+                                            onClick={() => handleClicked({ task })}
                                             className="flex items-center justify-between p-4 bg-white border-b last:border-0 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300"
                                         >
                                             <div className="w-2/3 font-medium text-gray-900 truncate dark:text-white">
@@ -305,12 +309,12 @@ export default function Task() {
                             </div>
 
                             <div className="buttons w-[80%] mt-[3rem] mx-auto gap-[1rem] flex justify-center items-center">
-                                <button onClick={() => handleEdit()} className="px-4 py-2 border-2 border-slate-500 text-slate-500 font-semibold rounded-lg transition duration-[300] hover:bg-blue-100 hover:border-blue-400">
+                                <button onClick={() => handleEdit()} className="px-4 py-2 border-2 border-slate-500 text-slate-500 font-semibold rounded-lg transition duration-300 hover:bg-blue-100 hover:border-blue-400">
                                     Edit
                                 </button>
 
                                 {chosenTask.status !== "COMPLETED" ? (
-                                    <button onClick={() => handleDone()} className="px-4 py-2 border-2 border-slate-500 text-slate-500 font-semibold rounded-lg transition duration-[300] hover:bg-blue-100 hover:border-blue-400">
+                                    <button onClick={() => handleDone()} className="px-4 py-2 border-2 border-slate-500 text-slate-500 font-semibold rounded-lg transition duration-300 hover:bg-blue-100 hover:border-blue-400">
                                         Mark as Done
                                     </button>
                                 ) : (

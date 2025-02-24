@@ -25,7 +25,8 @@ export default function EditTask({ task }: { task: any }) {
 
             });
 
-            // const data = await res.json();
+            const data = await res.json();
+            console.log(data);
             console.log("Status updated successfully");
         } catch (error) {
             console.log("Error updating status", error);        

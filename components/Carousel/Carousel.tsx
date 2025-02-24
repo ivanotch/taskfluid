@@ -13,13 +13,13 @@ export default function Carousel() {
                 <input type="radio" name="slider" id="item-2" />
                 <input type="radio" name="slider" id="item-3" />
                 <div className="cards flex justify-center items-center relative w-full h-[300px] gap-[15px]">
-                    <label className="absolute w-[40%] h-full overflow-hidden cursor-pointer rounded-[10px] transition-transform duration-[400ms] ease-in-out" htmlFor="item-1" id="song-1">
+                    <label className="absolute w-[40%] h-full overflow-hidden cursor-pointer rounded-[10px] transition-transform duration-400 ease-in-out" htmlFor="item-1" id="song-1">
                         <img className="w-full h-full object-cover block" src={comments.images[0]}  alt="Song 1" />
                     </label>
-                    <label className="absolute w-[40%] h-full overflow-hidden cursor-pointer rounded-[10px] transition-transform duration-[400ms] ease-in-out" htmlFor="item-2" id="song-2">
+                    <label className="absolute w-[40%] h-full overflow-hidden cursor-pointer rounded-[10px] transition-transform duration-400 ease-in-out" htmlFor="item-2" id="song-2">
                         <img className="w-full h-full object-cover block" src={comments.images[1]} alt="Song 2" />
                     </label>
-                    <label className="absolute w-[40%] h-full overflow-hidden cursor-pointer rounded-[10px] transition-transform duration-[400ms] ease-in-out" htmlFor="item-3" id="song-3">
+                    <label className="absolute w-[40%] h-full overflow-hidden cursor-pointer rounded-[10px] transition-transform duration-400 ease-in-out" htmlFor="item-3" id="song-3">
                         <img className="w-full h-full object-cover block" src={comments.images[2]}  alt="Song 3" />
                     </label>
                 </div>
