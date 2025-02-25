@@ -84,6 +84,34 @@ async function main() {
     },
   });
 
+  const task5 = await prisma.task.upsert({
+    where: { id: "task5-id" },
+    update: {},
+    create: {
+      id: "task5-id",
+      title: "Finish Pooping and hiking Assignment",
+      description: "Complete the full-stack assignment by end of the week. or not hahaha",
+      status: TaskStatus.COMPLETED,
+      priority: TaskPriority.LOW,
+      creatorId: user1.id,
+      deadline: new Date("2024-02-10T23:59:59Z"),
+    },
+  });
+
+  const task6 = await prisma.task.upsert({
+    where: { id: "task6-id" },
+    update: {},
+    create: {
+      id: "task6-id",
+      title: "Finish Coughing Assignment",
+      description: "Complete the half-stack assignment by end of the week. or not hahaha",
+      status: TaskStatus.PENDING,
+      priority: TaskPriority.LOW,
+      creatorId: user1.id,
+      deadline: new Date("2024-02-10T23:59:59Z"),
+    },
+  });
+
   // Sharing Task 1 with Jane (user2)
   await prisma.sharedTask.upsert({
     where: {
@@ -104,6 +132,29 @@ async function main() {
     update: {},
     create: {
       taskId: task2.id,
+      userId: user1.id,
+    },
+  });
+
+  await prisma.sharedTask.upsert({
+    where: {
+      taskId_userId: { taskId: task5.id, userId: user2.id }, // Fix: Composite Unique Constraint
+    },
+    update: {},
+    create: {
+      taskId: task5.id,
+      userId: user2.id,
+    },
+  });
+
+  // Sharing Task 2 with John (user1)
+  await prisma.sharedTask.upsert({
+    where: {
+      taskId_userId: { taskId: task6.id, userId: user1.id }, // Fix: Composite Unique Constraint
+    },
+    update: {},
+    create: {
+      taskId: task6.id,
       userId: user1.id,
     },
   });

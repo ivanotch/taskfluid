@@ -6,6 +6,7 @@ import { FcFullTrash } from "react-icons/fc";
 import { useState, useEffect, use } from "react";
 import Avatar from "@/components/Avatar/Avatar";
 import TaskForm from "./editTask";
+import { useRouter } from 'next/router';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -19,6 +20,7 @@ import {
 } from "@/components/ui/alert-dialog"
 
 export default function Task() {
+
     useEffect(() => {
         async function fetchTasks() {
 
@@ -164,21 +166,22 @@ export default function Task() {
     }
 
     async function handleDelete({ task }: { task: any }) {
+
         console.log(task.id);
         if (!task || !task.id) {
             console.error("Task is undefined or missing an ID:", task);
             return;
         }
-    
+
         try {
             console.log("Sending delete request for task ID:", task.id);
-    
+
             const res = await fetch("/api/data/edit/", {
                 method: "DELETE",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ taskId: task.id }) // Removed `action`
             });
-    
+
             // Check if response has content before parsing
             let data;
             try {
@@ -186,14 +189,14 @@ export default function Task() {
             } catch {
                 data = null;
             }
-    
+
             if (!res.ok) {
                 console.error("Error deleting task:", data?.error || "Unknown error");
                 return;
             }
-    
+
             console.log("Task deleted successfully:", data);
-    
+
             // Reset chosenTask after successful deletion
             setChosenTask({
                 id: "",
@@ -208,19 +211,17 @@ export default function Task() {
                 createdAt: "",
                 updatedAt: "",
             });
-    
+
         } catch (error) {
             console.error("Failed to delete task:", error);
         }
     }
-    
-    
+
+
 
     return (
         <Layout>
-
             <main className="w-[100%] flex flex-col">
-
                 {!clicked ? (
                     <div>
                         <div className="border-b-[1px] border-t-[1px] border-r-[1px] border-gray-400 h-[4rem] w-[100%] flex justify-between items-center pr-[1.5rem]">
@@ -246,35 +247,48 @@ export default function Task() {
 
                         <div className="w-[70%] mt-[4rem] mx-auto flex justify-center items-center">
                             <div className="relative rounded-lg w-full ">
-                                <div className="text-lg text-left text-gray-600 ">
+                                <div className="text-lg text-left text-gray-600">
 
                                     {display === "TASK" ? allIncomplete.length > 0 ? allIncomplete.map((task, index) => (
                                         <div
                                             key={index}
-                                            onClick={() => handleClicked({ task })}
                                             className="flex items-center justify-between p-4  border-b last:border-0 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300"
                                         >
-                                            <div className="w-2/3 font-medium text-gray-900 truncate dark:text-white">
-                                                {task.title}
+                                            <div onClick={() => handleClicked({ task })} className="h-[100%] w-[100%] flex items-center justify-between">
+                                                <div className=" font-medium text-gray-900 truncate dark:text-white">
+                                                    {task.title}
+                                                </div>
+                                                <div className="w-1/4 text-md text-[1rem] text-gray-600 dark:text-gray-400">
+                                                    Due: {formatDate(task.deadline)}
+                                                </div>
                                             </div>
-                                            <div className="w-1/4 text-md text-[1rem] text-gray-600 dark:text-gray-400">
-                                                Due: {formatDate(task.deadline)}
-                                            </div>
-                                            <div className="w-1/12 flex justify-end">
-
-                                                <button onClick={promptDelete} className="p-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 cursor-pointer">
-                                                    <FcFullTrash />
-                                                </button>
-
+                                            <div className="flex justify-end">
+                                                <AlertDialog>
+                                                    <AlertDialogTrigger className="p-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"><FcFullTrash /></AlertDialogTrigger>
+                                                    <AlertDialogContent>
+                                                        <AlertDialogHeader>
+                                                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                            <AlertDialogDescription>
+                                                                This action cannot be undone. This will permanently delete your task
+                                                                and remove your data from our servers.
+                                                            </AlertDialogDescription>
+                                                        </AlertDialogHeader>
+                                                        <AlertDialogFooter>
+                                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                            <form onSubmit={() => handleDelete({ task })}>
+                                                                <AlertDialogAction type="submit">Delete</AlertDialogAction>
+                                                            </form>
+                                                        </AlertDialogFooter>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
                                             </div>
                                         </div>
-                                    )) : <div>No task for now.</div> : null
+                                    )) : <div className="text-center">No task for now.</div> : null
                                     }
 
                                     {display === "COMPLETED" ? completedTask.length > 0 ? completedTask.map((task, index) => (
                                         <div
                                             key={index}
-                                            // onClick={() => handleClicked({ task })}
                                             className="mb-[1rem] px-[1rem] flex items-center justify-between h-[4rem] bg-white border-b last:border-0 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300"
                                         >
                                             <div onClick={() => handleClicked({ task })} className="h-[100%] w-[100%] flex items-center justify-between">
@@ -298,56 +312,89 @@ export default function Task() {
                                                         </AlertDialogHeader>
                                                         <AlertDialogFooter>
                                                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                            <AlertDialogAction onClick={() => handleDelete({ task })} >Delete</AlertDialogAction>
+                                                            <form onSubmit={() => handleDelete({ task })}>
+                                                                <AlertDialogAction type="submit">Delete</AlertDialogAction>
+                                                            </form>
                                                         </AlertDialogFooter>
                                                     </AlertDialogContent>
                                                 </AlertDialog>
                                             </div>
-
                                         </div>
-                                    )) : <div>No completed Task yet!</div> : null
+                                    )) : <div className="text-center">No completed Task yet!</div> : null
                                     }
 
                                     {display === "IN_PROGRESS" ? inProgressTask.length > 0 ? inProgressTask.map((task, index) => (
                                         <div
                                             key={index}
-                                            onClick={() => handleClicked({ task })}
                                             className="flex items-center justify-between p-4 bg-white border-b last:border-0 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300"
                                         >
-                                            <div className="w-2/3 font-medium text-gray-900 truncate dark:text-white">
-                                                {task.title}
+                                            <div onClick={() => handleClicked({ task })} className="h-[100%] w-[100%] flex items-center justify-between">
+                                                <div className=" font-medium text-gray-900 truncate dark:text-white">
+                                                    {task.title}
+                                                </div>
+                                                <div className="w-1/4 text-md text-[1rem] text-gray-600 dark:text-gray-400">
+                                                    Due: {formatDate(task.deadline)}
+                                                </div>
                                             </div>
-                                            <div className="w-1/4 text-md text-[1rem] text-gray-600 dark:text-gray-400">
-                                                Due: {formatDate(task.deadline)}
-                                            </div>
-                                            <div className="w-1/12 flex justify-end">
-                                                <button onClick={promptDelete} className="p-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 cursor-pointer">
-                                                    <FcFullTrash />
-                                                </button>
+                                            <div className="flex justify-end">
+                                                <AlertDialog>
+                                                    <AlertDialogTrigger className="p-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"><FcFullTrash /></AlertDialogTrigger>
+                                                    <AlertDialogContent>
+                                                        <AlertDialogHeader>
+                                                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                            <AlertDialogDescription>
+                                                                This action cannot be undone. This will permanently delete your task
+                                                                and remove your data from our servers.
+                                                            </AlertDialogDescription>
+                                                        </AlertDialogHeader>
+                                                        <AlertDialogFooter>
+                                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                            <form onSubmit={() => handleDelete({ task })}>
+                                                                <AlertDialogAction type="submit">Delete</AlertDialogAction>
+                                                            </form>
+                                                        </AlertDialogFooter>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
                                             </div>
                                         </div>
-                                    )) : <div>Don't be lazy, Start some tasks!!</div> : null
+                                    )) : <div className="text-center">Don't be lazy, Start some tasks!!</div> : null
                                     }
 
                                     {display === "MISSING" ? overdueTask.length > 0 ? overdueTask.map((task, index) => (
                                         <div
                                             key={index}
-                                            onClick={() => handleClicked({ task })}
                                             className="flex items-center justify-between p-4 bg-white border-b last:border-0 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300"
                                         >
-                                            <div className="w-2/3 font-medium text-gray-900 truncate dark:text-white">
-                                                {task.title}
+                                            <div onClick={() => handleClicked({ task })} className="h-[100%] w-[100%] flex items-center justify-between">
+                                                <div className=" font-medium text-gray-900 truncate dark:text-white">
+                                                    {task.title}
+                                                </div>
+                                                <div className="w-1/4 text-md text-[1rem] text-gray-600 dark:text-gray-400">
+                                                    Due: {formatDate(task.deadline)}
+                                                </div>
                                             </div>
-                                            <div className="w-1/4 text-md text-[1rem] text-gray-600 dark:text-gray-400">
-                                                Due: {formatDate(task.deadline)}
-                                            </div>
-                                            <div className="w-1/12 flex justify-end">
-                                                <button onClick={promptDelete} className="p-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 cursor-pointer">
-                                                    <FcFullTrash />
-                                                </button>
+                                            <div className="flex justify-end">
+                                                <AlertDialog>
+                                                    <AlertDialogTrigger className="p-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"><FcFullTrash /></AlertDialogTrigger>
+                                                    <AlertDialogContent>
+                                                        <AlertDialogHeader>
+                                                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                            <AlertDialogDescription>
+                                                                This action cannot be undone. This will permanently delete your task
+                                                                and remove your data from our servers.
+                                                            </AlertDialogDescription>
+                                                        </AlertDialogHeader>
+                                                        <AlertDialogFooter>
+                                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                            <form onSubmit={() => handleDelete({ task })}>
+                                                                <AlertDialogAction type="submit">Delete</AlertDialogAction>
+                                                            </form>
+                                                        </AlertDialogFooter>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
                                             </div>
                                         </div>
-                                    )) : <div>Nice! no missing activity for now.</div> : null}
+                                    )) : <div className="text-center">Nice! no missing activity for now.</div> : null}
 
                                 </div>
                             </div>
