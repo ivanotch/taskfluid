@@ -72,7 +72,7 @@ export async function DELETE(req: Request) {
 
         console.log("Attempting to delete task with ID:", taskId);
 
-        await prisma.task.deleteMany({ where: { id: taskId } });
+        await prisma.task.delete({ where: { id: taskId } });
 
         return new Response(JSON.stringify({ message: "Task deleted successfully" }), {
             status: 200,

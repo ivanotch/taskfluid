@@ -10,6 +10,8 @@ export async function GET(req: Request) {
         const cookies = parse(req.headers.get("cookie") || "");
         const token = cookies.authToken;
 
+        
+
         // ✅ Check if token exists
         if (!token) {
             return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
@@ -27,10 +29,16 @@ export async function GET(req: Request) {
             return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
         }
 
+        
+
         // ✅ Fetch tasks from Prisma
         const tasks = await prisma.task.findMany({
             where: { creatorId: decoded.id },
         });
+
+        console.log("Decoded user ID:", decoded.id);
+console.log("Tasks found:", tasks);
+
 
         // ✅ Return JSON response
         return new Response(JSON.stringify({ tasks }), { status: 200, headers: { "Content-Type": "application/json" } });

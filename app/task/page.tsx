@@ -34,12 +34,12 @@ export default function Task() {
         fetchTasks();
     }, []);
 
-    const [tasks, setTasks] = useState<{ id: string; title: string; description: string; status: string; priority?: string; deadline: string; creatorId: number; creator: string; sharedWith: number[]; createdAt: Date; updatedAt: Date; }[]>([]);
+    const [tasks, setTasks] = useState<{ id: string; title: string; description: string; status: string; priority?: string; deadline: string; creatorId: number; creator: string; sharedUser: number[]; createdAt: Date; updatedAt: Date; }[]>([]);
     const [loading, setLoading] = useState(true);
     const [display, setDisplay] = useState("TASK");
     const [clicked, setClicked] = useState(false);
     const [deletePrompt, setDeletePrompt] = useState(false);
-    const [chosenTask, setChosenTask] = useState<{ id: string; title: string; description: string; status: string; priority: string; deadline: string; creatorId: string; creator: string; sharedWith: number[]; createdAt: string; updatedAt: string; }>({
+    const [chosenTask, setChosenTask] = useState<{ id: string; title: string; description: string; status: string; priority: string; deadline: string; creatorId: string; creator: string; sharedUser: number[]; createdAt: string; updatedAt: string; }>({
         id: "",
         title: "",
         description: "",
@@ -48,7 +48,7 @@ export default function Task() {
         deadline: "",
         creatorId: "",
         creator: "",
-        sharedWith: [],
+        sharedUser: [],
         createdAt: "",
         updatedAt: "",
     });
@@ -125,7 +125,7 @@ export default function Task() {
             deadline: task.deadline,
             creatorId: task.creatorId,
             creator: task.creator,
-            sharedWith: task.sharedWith,
+            sharedUser: task.sharedUser,
             createdAt: task.createdAt,
             updatedAt: task.updatedAt,
         });
@@ -204,7 +204,7 @@ export default function Task() {
                 deadline: "",
                 creatorId: "",
                 creator: "",
-                sharedWith: [],
+                sharedUser: [],
                 createdAt: "",
                 updatedAt: "",
             });

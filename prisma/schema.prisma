@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -15,8 +12,8 @@ model User {
   name        String
   email       String       @unique
   password    String
-  tasks       Task[] // Relation: A user can create multiple tasks
-  // sharedTasks SharedTask[] // Relation: A user can have tasks shared with them
+  tasks       Task[]       @relation("UserTasks") // A user can create multiple tasks
+  sharedTasks SharedTask[] // A user can have tasks shared with them
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 }
@@ -29,23 +26,22 @@ model Task {
   priority    TaskPriority @default(MEDIUM)
   deadline    DateTime
   creatorId   String
-  // creator     User         @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-  users       User[]    // ✅ Ensures cascade delete for related shared tasks
+  creator     User         @relation("UserTasks", fields: [creatorId], references: [id], onDelete: Cascade) // Ensures a user can create multiple tasks
+  sharedUsers SharedTask[] // Tracks users that the task is shared with
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 }
 
-// model SharedTask {
-//   id        String   @id @default(uuid())
-//   taskId    String
-//   task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade) // ✅ Ensures cascade delete when task is deleted
-//   userId    String
-//   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-//   createdAt DateTime @default(now())
+model SharedTask {
+  id        String   @id @default(uuid())
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade) // Ensures deletion when the task is deleted
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 
-//   @@unique([taskId, userId]) // Composite unique constraint
-// }
-
+  @@unique([taskId, userId]) // Ensures a task cannot be shared multiple times to the same user
+}
 
 enum TaskStatus {
   PENDING
@@ -58,15 +54,3 @@ enum TaskPriority {
   MEDIUM
   HIGH
 }
-
-// const TaskStatus = {
-//   PENDING: "PENDING",
-//   IN_PROGRESS: "IN_PROGRESS",
-//   COMPLETED: "COMPLETED"
-// };
-
-// const TaskPriority = {
-//   LOW: "LOW",
-//   MEDIUM: "MEDIUM",
-//   HIGH: "HIGH"
-// };
