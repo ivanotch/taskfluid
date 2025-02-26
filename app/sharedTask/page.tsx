@@ -151,10 +151,10 @@ export default function SharedTask() {
 
     const now = new Date();
     const task = tasks.filter((task) => new Date(task.task.deadline) <= now && task.task.status !== "COMPLETED");
-    // const completedTask = tasks.filter(task => task.status === "COMPLETED");
-    // const declinedTask = tasks.filter(task => task.status === "COMPLETED");
-    // const missedTask = tasks.filter(task => task.status === "COMPLETED");
-    // const requestedTask = tasks.filter(task => task.status === "IN_PROGRESS" && new Date(task.deadline) >= now);
+    const completedTask = tasks.filter(task => task.task.status === "COMPLETED");
+    const declinedTask = shareRequest.filter(request => request.status === "DECLINED");
+    const missedTask = tasks.filter(task => task.task.status !== "COMPLETED"  && new Date(task.task.deadline) >= now);
+    const requestedTask = shareRequest.filter(request => request.status === "PENDING");
 
     function handleClicked({ task }: { task: any }) {
         setChosenTask({
@@ -333,17 +333,17 @@ export default function SharedTask() {
                                     )) : <div className="text-center">No task for now.</div> : null
                                     }
 
-                                    {/* {display === "COMPLETED" ? completedTask.length > 0 ? completedTask.map((task, index) => (
+                                    {display === "COMPLETED" ? completedTask.length > 0 ? completedTask.map((task, index) => (
                                         <div
                                             key={index}
                                             className="flex items-center justify-between p-4  border-b last:border-0 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300"
                                         >
                                             <div onClick={() => handleClicked({ task })} className="h-[100%] w-[100%] flex items-center justify-between">
                                                 <div className=" font-medium text-gray-900 truncate dark:text-white">
-                                                    {task.title}
+                                                    {task.task.title}
                                                 </div>
                                                 <div className="w-1/4 text-md text-[1rem] text-gray-600 dark:text-gray-400">
-                                                    Due: {formatDate(task.deadline)}
+                                                    Due: {formatDate(task.task.deadline)}
                                                 </div>
                                             </div>
                                             <div className="flex justify-end">
@@ -370,14 +370,14 @@ export default function SharedTask() {
                                     )) : <div className="text-center">No completed task for now.</div> : null
                                     }
 
-                                    {display === "DECLINED" ? declinedTask.length > 0 ? declinedTask.map((task, index) => (
+                                    {/* {display === "DECLINED" ? declinedTask.length > 0 ? declinedTask.map((task, index) => (
                                         <div
                                             key={index}
                                             className="flex items-center justify-between p-4  border-b last:border-0 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300"
                                         >
                                             <div onClick={() => handleClicked({ task })} className="h-[100%] w-[100%] flex items-center justify-between">
                                                 <div className=" font-medium text-gray-900 truncate dark:text-white">
-                                                    {task.title}
+                                                    {task.task.title}
                                                 </div>
                                                 <div className="w-1/4 text-md text-[1rem] text-gray-600 dark:text-gray-400">
                                                     Due: {formatDate(task.deadline)}
@@ -405,7 +405,7 @@ export default function SharedTask() {
                                             </div>
                                         </div>
                                     )) : <div className="text-center">No declined task for now.</div> : null
-                                    }
+                                    } */}
 
                                     {display === "MISSED" ? missedTask.length > 0 ? missedTask.map((task, index) => (
                                         <div
@@ -414,10 +414,10 @@ export default function SharedTask() {
                                         >
                                             <div onClick={() => handleClicked({ task })} className="h-[100%] w-[100%] flex items-center justify-between">
                                                 <div className=" font-medium text-gray-900 truncate dark:text-white">
-                                                    {task.title}
+                                                    {task.task.title}
                                                 </div>
                                                 <div className="w-1/4 text-md text-[1rem] text-gray-600 dark:text-gray-400">
-                                                    Due: {formatDate(task.deadline)}
+                                                    Due: {formatDate(task.task.deadline)}
                                                 </div>
                                             </div>
                                             <div className="flex justify-end">
@@ -444,14 +444,14 @@ export default function SharedTask() {
                                     )) : <div className="text-center">No missed task for now.</div> : null
                                     }
 
-                                    {display === "REQUEST" ? requestedTask.length > 0 ? requestedTask.map((task, index) => (
+                                    {/* {display === "REQUEST" ? requestedTask.length > 0 ? requestedTask.map((task, index) => (
                                         <div
                                             key={index}
                                             className="mb-[1rem] px-[1rem] flex items-center justify-between h-[4rem] bg-white border-b last:border-0 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300"
                                         >
                                             <div onClick={() => handleClicked({ task })} className="h-[100%] w-[100%] flex items-center justify-between">
                                                 <div className=" font-medium text-gray-900 truncate dark:text-white">
-                                                    {task.title}
+                                                    {task.task.title}
                                                 </div>
                                                 <div className="w-1/4 text-md text-[1rem] text-gray-600 dark:text-gray-400">
                                                     Due: {formatDate(task.deadline)}
