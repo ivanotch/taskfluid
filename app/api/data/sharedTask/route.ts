@@ -32,25 +32,29 @@ export async function GET(req: Request) {
 
         // ✅ Fetch tasks from Prisma
 
-        const tasks = await prisma.task.findMany({
-            where: { creatorId: decoded.id },
+        // const tasks = await prisma.task.findMany({
+        //     where: { creatorId: decoded.id },
+        // });
+
+        const tasks = await prisma.sharedTask.findMany({
+            where: { userId: decoded.id }, // Replace userId with the authenticated user's ID
+            include: {
+                task: true, // Include the task details
+            },
         });
 
-        // if (action === "getSharedTask") {
-        //     tasks = await prisma.sharedTask.findMany({
-        //         where: { userId: decoded.id }, // Replace userId with the authenticated user's ID
-        //         include: {
-        //             task: true, // Include the task details
-        //         },
-        //     });
-        // }
+        const sharedRequest = await prisma.sharedTaskRequest.findMany({
+            where: { receiverId: decoded.id }, // Replace userId with the authenticated user's ID
+        });
+
 
         console.log("Decoded user ID:", decoded.id);
         console.log("Tasks found:", tasks);
+        console.log("request found:", sharedRequest);
 
 
         // ✅ Return JSON response
-        return new Response(JSON.stringify({ tasks }), { status: 200, headers: { "Content-Type": "application/json" } });
+        return new Response(JSON.stringify({ tasks, sharedRequest }), { status: 200, headers: { "Content-Type": "application/json" } });
 
     } catch (error) {
         console.error("An unexpected error occurred:", error);

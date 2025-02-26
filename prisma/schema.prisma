@@ -1,3 +1,60 @@
+// generator client {
+//   provider = "prisma-client-js"
+// }
+
+// datasource db {
+//   provider = "postgresql"
+//   url      = env("DATABASE_URL")
+// }
+
+// model User {
+//   id          String       @id @default(uuid())
+//   name        String
+//   email       String       @unique
+//   password    String
+//   tasks       Task[]       @relation("UserTasks") // A user can create multiple tasks
+//   sharedTasks SharedTask[] // A user can have tasks shared with them
+//   createdAt   DateTime     @default(now())
+//   updatedAt   DateTime     @updatedAt
+// }
+
+// model Task {
+//   id          String       @id @default(uuid())
+//   title       String
+//   description String?
+//   status      TaskStatus   @default(PENDING)
+//   priority    TaskPriority @default(MEDIUM)
+//   deadline    DateTime
+//   creatorId   String
+//   creator     User         @relation("UserTasks", fields: [creatorId], references: [id], onDelete: Cascade) // Ensures a user can create multiple tasks
+//   sharedUsers SharedTask[] // Tracks users that the task is shared with
+//   createdAt   DateTime     @default(now())
+//   updatedAt   DateTime     @updatedAt
+// }
+
+// model SharedTask {
+//   id        String   @id @default(uuid())
+//   taskId    String
+//   task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade) // Ensures deletion when the task is deleted
+//   userId    String
+//   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+//   createdAt DateTime @default(now())
+
+//   @@unique([taskId, userId]) // Ensures a task cannot be shared multiple times to the same user
+// }
+
+// enum TaskStatus {
+//   PENDING
+//   IN_PROGRESS
+//   COMPLETED
+// }
+
+// enum TaskPriority {
+//   LOW
+//   MEDIUM
+//   HIGH
+// }
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,14 +65,19 @@ datasource db {
 }
 
 model User {
-  id          String       @id @default(uuid())
-  name        String
-  email       String       @unique
-  password    String
+  id       String @id @default(uuid())
+  name     String
+  email    String @unique
+  password String
+
   tasks       Task[]       @relation("UserTasks") // A user can create multiple tasks
   sharedTasks SharedTask[] // A user can have tasks shared with them
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+
+  sentRequests     SharedTaskRequest[] @relation("SentRequests") // Sent requests
+  receivedRequests SharedTaskRequest[] @relation("ReceivedRequests") // Received requests
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Task {
@@ -25,22 +87,47 @@ model Task {
   status      TaskStatus   @default(PENDING)
   priority    TaskPriority @default(MEDIUM)
   deadline    DateTime
-  creatorId   String
-  creator     User         @relation("UserTasks", fields: [creatorId], references: [id], onDelete: Cascade) // Ensures a user can create multiple tasks
-  sharedUsers SharedTask[] // Tracks users that the task is shared with
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+
+  creatorId String
+  creator   User   @relation("UserTasks", fields: [creatorId], references: [id], onDelete: Cascade)
+
+  sharedUsers   SharedTask[] // Tracks users that the task is shared with
+  shareRequests SharedTaskRequest[] @relation("TaskRequests") // Tracks share requests for this task
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SharedTaskRequest {
+  id String @id @default(uuid())
+
+  taskId String
+  task   Task   @relation("TaskRequests", fields: [taskId], references: [id], onDelete: Cascade)
+
+  senderId String
+  sender   User   @relation("SentRequests", fields: [senderId], references: [id], onDelete: Cascade)
+
+  receiverId String
+  receiver   User   @relation("ReceivedRequests", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  status    RequestStatus @default(PENDING) // Status of the request (Pending, Accepted, Declined)
+  createdAt DateTime      @default(now())
+
+  @@unique([taskId, receiverId]) // Ensures a task cannot be requested multiple times by the same user
 }
 
 model SharedTask {
-  id        String   @id @default(uuid())
-  taskId    String
-  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade) // Ensures deletion when the task is deleted
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id String @id @default(uuid())
+
+  taskId String
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   createdAt DateTime @default(now())
 
-  @@unique([taskId, userId]) // Ensures a task cannot be shared multiple times to the same user
+  @@unique([taskId, userId]) // Ensures a task cannot be shared multiple times with the same user
 }
 
 enum TaskStatus {
@@ -53,4 +140,10 @@ enum TaskPriority {
   LOW
   MEDIUM
   HIGH
+}
+
+enum RequestStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
 }

@@ -6,7 +6,6 @@ import { FcFullTrash } from "react-icons/fc";
 import { useState, useEffect, use } from "react";
 import Avatar from "@/components/Avatar/Avatar";
 import TaskForm from "./editTask";
-import { useRouter } from 'next/router';
 import {
     AlertDialog,
     AlertDialogAction,
