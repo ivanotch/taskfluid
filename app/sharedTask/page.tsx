@@ -2,6 +2,8 @@
 import Layout from "@/components/Layout/Layout"
 import AvatarToggle from "@/components/Avatar/AvatarToggle"
 import { FcFullTrash } from "react-icons/fc";
+import { PiCheckFatFill } from "react-icons/pi";
+import { ImCross } from "react-icons/im";
 import { use, useEffect, useState } from "react";
 import {
     AlertDialog,
@@ -14,6 +16,8 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import Avatar from "@/components/Avatar/Avatar";
+import EditTask from "./viewSharedTask";
 
 export default function SharedTask() {
 
@@ -25,11 +29,20 @@ export default function SharedTask() {
                 credentials: 'include',
             });
 
+            const task = await fetch('/api/data/tasks/', {
+                method: 'GET',
+                credentials: 'include',
+            });
+
             const data = await response.json();
-            setTasks(data.tasks);
+            const taskData = await task.json();
+
+            setSharedTask(data.tasks);
             setShareRequest(data.sharedRequest);
+            setTasks(taskData.tasks);
             console.log(data.tasks);
             console.log(data.sharedRequest)
+            console.log(taskData.tasks)
             setLoading(false);
         }
         fetchTasks();
@@ -113,8 +126,9 @@ export default function SharedTask() {
     //     }
     // ]
 
-    const [tasks, setTasks] = useState<{createdAt: string, id: string, task: {createdAt: string, creatorId: string, deadline: string, id: string, title: string, description:string, status: string, priority: string, updatedAt: string}, taskId: string, userId:string}[]>([]);
-    const [shareRequest, setShareRequest] = useState<{createdAt: string, id: string, receiverId: string, senderId: string, status: string, taskId: string}[]>([]);
+    const [sharedTask, setSharedTask] = useState<{ createdAt: string, id: string, task: { createdAt: string, creatorId: string, deadline: string, id: string, title: string, description: string, status: string, priority: string, updatedAt: string }, taskId: string, userId: string }[]>([]);
+    const [shareRequest, setShareRequest] = useState<{ createdAt: string, id: string, receiverId: string, senderId: string, status: string, taskId: string }[]>([]);
+    const [tasks, setTasks] = useState<{ id: string; title: string; description: string; status: string; priority?: string; deadline: string; creatorId: number; creator: string; sharedUser: number[]; createdAt: Date; updatedAt: Date; }[]>([]);
     const [loading, setLoading] = useState(true);
     const [display, setDisplay] = useState("TASK");
     const [clicked, setClicked] = useState(false);
@@ -150,13 +164,23 @@ export default function SharedTask() {
     }
 
     const now = new Date();
-    const task = tasks.filter((task) => new Date(task.task.deadline) <= now && task.task.status !== "COMPLETED");
-    const completedTask = tasks.filter(task => task.task.status === "COMPLETED");
-    const declinedTask = shareRequest.filter(request => request.status === "DECLINED");
-    const missedTask = tasks.filter(task => task.task.status !== "COMPLETED"  && new Date(task.task.deadline) >= now);
-    const requestedTask = shareRequest.filter(request => request.status === "PENDING");
+    const task = sharedTask.filter((task) => new Date(task.task.deadline) <= now && task.task.status !== "COMPLETED");
+    const completedTask = sharedTask.filter(task => task.task.status === "COMPLETED");
+
+    const declinedShareRequest = shareRequest.filter(request => request.status === "DECLINED");
+    const declinedTask = tasks.filter(task =>
+        declinedShareRequest.some(request => request.taskId === task.id)
+    );
+
+    const missedTask = sharedTask.filter(task => task.task.status !== "COMPLETED" && new Date(task.task.deadline) >= now);
+
+    const requestedShareRequest = shareRequest.filter(request => request.status === "PENDING");
+    const requestedTask = tasks.filter(task =>
+        requestedShareRequest.some(request => request.taskId === task.id)
+    );
 
     function handleClicked({ task }: { task: any }) {
+        console.log(task)
         setChosenTask({
             id: task.id,
             title: task.title,
@@ -252,11 +276,13 @@ export default function SharedTask() {
         }
     }
 
-    console.log(tasks)
-    console.log(shareRequest)
+    async function handleAccept({ requestedTask }: { requestedTask: any }) {
+
+    }
+
 
     return (
-        
+
         <Layout>
             <main className="w-[100%] flex flex-col">
                 {!clicked ? (
@@ -301,7 +327,7 @@ export default function SharedTask() {
                                             key={index}
                                             className="flex items-center justify-between p-4  border-b last:border-0 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300"
                                         >
-                                            <div onClick={() => handleClicked({ task })} className="h-[100%] w-[100%] flex items-center justify-between">
+                                            <div onClick={() => handleClicked({ task: task.task })} className="h-[100%] w-[100%] flex items-center justify-between">
                                                 <div className=" font-medium text-gray-900 truncate dark:text-white">
                                                     {task.task.title}
                                                 </div>
@@ -309,7 +335,8 @@ export default function SharedTask() {
                                                     Due: {formatDate(task.task.deadline)}
                                                 </div>
                                             </div>
-                                            <div className="flex justify-end">
+                                            {/* delete task: you cannot delete a shared task unless you are the owner */}
+                                            {/* <div className="flex justify-end">
                                                 <AlertDialog>
                                                     <AlertDialogTrigger className="p-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"><FcFullTrash /></AlertDialogTrigger>
                                                     <AlertDialogContent>
@@ -328,7 +355,7 @@ export default function SharedTask() {
                                                         </AlertDialogFooter>
                                                     </AlertDialogContent>
                                                 </AlertDialog>
-                                            </div>
+                                            </div> */}
                                         </div>
                                     )) : <div className="text-center">No task for now.</div> : null
                                     }
@@ -338,7 +365,7 @@ export default function SharedTask() {
                                             key={index}
                                             className="flex items-center justify-between p-4  border-b last:border-0 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300"
                                         >
-                                            <div onClick={() => handleClicked({ task })} className="h-[100%] w-[100%] flex items-center justify-between">
+                                            <div onClick={() => handleClicked({ task: task.task })} className="h-[100%] w-[100%] flex items-center justify-between">
                                                 <div className=" font-medium text-gray-900 truncate dark:text-white">
                                                     {task.task.title}
                                                 </div>
@@ -370,14 +397,14 @@ export default function SharedTask() {
                                     )) : <div className="text-center">No completed task for now.</div> : null
                                     }
 
-                                    {/* {display === "DECLINED" ? declinedTask.length > 0 ? declinedTask.map((task, index) => (
+                                    {display === "DECLINED" ? declinedTask.length > 0 ? declinedTask.map((task, index) => (
                                         <div
                                             key={index}
                                             className="flex items-center justify-between p-4  border-b last:border-0 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300"
                                         >
                                             <div onClick={() => handleClicked({ task })} className="h-[100%] w-[100%] flex items-center justify-between">
                                                 <div className=" font-medium text-gray-900 truncate dark:text-white">
-                                                    {task.task.title}
+                                                    {task.title}
                                                 </div>
                                                 <div className="w-1/4 text-md text-[1rem] text-gray-600 dark:text-gray-400">
                                                     Due: {formatDate(task.deadline)}
@@ -405,14 +432,14 @@ export default function SharedTask() {
                                             </div>
                                         </div>
                                     )) : <div className="text-center">No declined task for now.</div> : null
-                                    } */}
+                                    }
 
                                     {display === "MISSED" ? missedTask.length > 0 ? missedTask.map((task, index) => (
                                         <div
                                             key={index}
                                             className="flex items-center justify-between p-4  border-b last:border-0 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300"
                                         >
-                                            <div onClick={() => handleClicked({ task })} className="h-[100%] w-[100%] flex items-center justify-between">
+                                            <div onClick={() => handleClicked({ task:task.task })} className="h-[100%] w-[100%] flex items-center justify-between">
                                                 <div className=" font-medium text-gray-900 truncate dark:text-white">
                                                     {task.task.title}
                                                 </div>
@@ -444,22 +471,25 @@ export default function SharedTask() {
                                     )) : <div className="text-center">No missed task for now.</div> : null
                                     }
 
-                                    {/* {display === "REQUEST" ? requestedTask.length > 0 ? requestedTask.map((task, index) => (
+                                    {display === "REQUEST" ? requestedTask.length > 0 ? requestedTask.map((task, index) => (
                                         <div
                                             key={index}
                                             className="mb-[1rem] px-[1rem] flex items-center justify-between h-[4rem] bg-white border-b last:border-0 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300"
                                         >
                                             <div onClick={() => handleClicked({ task })} className="h-[100%] w-[100%] flex items-center justify-between">
                                                 <div className=" font-medium text-gray-900 truncate dark:text-white">
-                                                    {task.task.title}
+                                                    {task.title}
                                                 </div>
                                                 <div className="w-1/4 text-md text-[1rem] text-gray-600 dark:text-gray-400">
                                                     Due: {formatDate(task.deadline)}
                                                 </div>
                                             </div>
-                                            <div className="flex justify-end">
+                                            <div className="flex justify-end gap-[0.7rem]">
+                                                <div className="p-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 cursor-pointer">
+                                                    <PiCheckFatFill />
+                                                </div>
                                                 <AlertDialog>
-                                                    <AlertDialogTrigger className="p-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"><FcFullTrash /></AlertDialogTrigger>
+                                                    <AlertDialogTrigger className="p-2 rounded-full bg-blue-500 text-white hover:bg-red-600 cursor-pointer"><ImCross className="text-red" /></AlertDialogTrigger>
                                                     <AlertDialogContent>
                                                         <AlertDialogHeader>
                                                             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
@@ -479,7 +509,7 @@ export default function SharedTask() {
                                             </div>
                                         </div>
                                     )) : <div className="text-center">No one requested to work with you yet!</div> : null
-                                    } */}
+                                    }
 
 
 
@@ -487,69 +517,69 @@ export default function SharedTask() {
                             </div>
                         </div>
                     </div>
-                    // ) : (
-                    //     edit ? (
-                    //         <div className="w-[60%] mx-auto mt-[4rem]">
-                    //             <button onClick={() => setEdit(false)} className="mb-[1rem]">{`<`} Return</button>
-                    //             {/* <TaskForm task={chosenTask} /> */}
-                    //         </div>
-                    //     ) : (
-                    //         <div className="">
-                    //             <div className="text-center border-b-[1px] border-t-[1px] border-r-[1px] border-gray-400 h-[4rem] flex items-center justify-between w-[100%] pr-[1.5rem]">
-                    //                 <button onClick={() => setClicked(false)} className="ml-[1rem]">Back</button>
-                    //                 <span className="tracking-[0.2rem] font-[600] text-[1.7rem] font-sub ">Task</span>
-                    //                 <AvatarToggle name={users[1].name} avatar={users[1].image} email={users[1].email} />
-                    //             </div>
-                    //             <div className="title flex justify-between items-center p-[1.5rem] w-[80%] mt-[4rem] mx-auto border-b border-gray-500 p-4">
-                    //                 <div className="flex gap-[1.5rem]">
-                    //                     <Avatar />
-                    //                     <div className="flex flex-col">
-                    //                         <span className="text-[1.7rem] font-main">{chosenTask.title}</span>
-                    //                         {formatDate(chosenTask.createdAt) !== formatDate(chosenTask.updatedAt) ? (
-                    //                             <span>Updated At: {formatDate(chosenTask.updatedAt)}</span>
-                    //                         ) : (
-                    //                             <span>{formatDate(chosenTask.createdAt)}</span>
-                    //                         )}
-                    //                     </div>
-                    //                 </div>
-                    //                 <div className="self-start">
-                    //                     <button>share</button>
-                    //                 </div>
-                    //             </div>
+                ) : (
+                    edit ? (
+                        <div className="w-[60%] mx-auto mt-[4rem]">
+                            <button onClick={() => setEdit(false)} className="mb-[1rem]">{`<`} Return</button>
+                            {/* <TaskForm task={chosenTask} /> */}
+                            <EditTask task={chosenTask} />
+                        </div>
+                    ) : (
+                        <div className="">
+                            <div className="text-center border-b-[1px] border-t-[1px] border-r-[1px] border-gray-400 h-[4rem] flex items-center justify-between w-[100%] pr-[1.5rem]">
+                                <button onClick={() => setClicked(false)} className="ml-[1rem]">Back</button>
+                                <span className="tracking-[0.2rem] font-[600] text-[1.7rem] font-sub ">Shared Task</span>
+                                <AvatarToggle name={users[1].name} avatar={users[1].image} email={users[1].email} />
+                            </div>
+                            <div className="title flex justify-between items-center p-[1.5rem] w-[80%] mt-[4rem] mx-auto border-b border-gray-500 p-4">
+                                <div className="flex gap-[1.5rem]">
+                                    <Avatar />
+                                    <div className="flex flex-col">
+                                        <span className="text-[1.7rem] font-main">{chosenTask.title}</span>
+                                        {formatDate(chosenTask.createdAt) !== formatDate(chosenTask.updatedAt) ? (
+                                            <span>Updated At: {formatDate(chosenTask.updatedAt)}</span>
+                                        ) : (
+                                            <span>{formatDate(chosenTask.createdAt)}</span>
+                                        )}
+                                    </div>
+                                </div>
+                                {display == "REQUEST" ? null : <div className="self-start">
+                                    <button>share</button>
+                                </div>}
+                            </div>
 
-                    //             <div className="h-[15rem] description w-[80%] mt-[2rem] pb-[2rem] mx-auto border-b border-gray-500 overflow-y-auto scrollbar-hide">
-                    //                 <p className="text-[1.1rem] font-sub">{chosenTask.description}</p>
-                    //             </div>
+                            <div className="h-[15rem] description w-[80%] mt-[2rem] pb-[2rem] mx-auto border-b border-gray-500 overflow-y-auto scrollbar-hide">
+                                <p className="text-[1.1rem] font-sub">{chosenTask.description}</p>
+                            </div>
 
-                    //             <div className="status w-[80%] mt-[4rem] mx-auto border-b border-gray-500 pb-[3rem]">
-                    //                 <ul className="text-[1.1rem] font-sub">
-                    //                     <li className="mb-[0.5rem]">Priority: {chosenTask.priority}</li>
-                    //                     <li className="mb-[0.5rem]">Status: {chosenTask.status}</li>
-                    //                     <li className="mb-[0.5rem]">Deadline: {formatDate(chosenTask.deadline)}</li>
-                    //                 </ul>
-                    //             </div>
+                            <div className="status w-[80%] mt-[4rem] mx-auto border-b border-gray-500 pb-[3rem]">
+                                <ul className="text-[1.1rem] font-sub">
+                                    <li className="mb-[0.5rem]">Priority: {chosenTask.priority}</li>
+                                    <li className="mb-[0.5rem]">Status: {chosenTask.status}</li>
+                                    <li className="mb-[0.5rem]">Deadline: {formatDate(chosenTask.deadline)}</li>
+                                </ul>
+                            </div>
 
-                    //             <div className="buttons w-[80%] mt-[3rem] mx-auto gap-[1rem] flex justify-center items-center">
-                    //                 <button onClick={() => handleEdit()} className="px-4 py-2 border-2 border-slate-500 text-slate-500 font-semibold rounded-lg transition duration-300 hover:bg-blue-100 hover:border-blue-400">
-                    //                     Edit
-                    //                 </button>
+                            <div className="buttons w-[80%] mt-[3rem] mx-auto gap-[1rem] flex justify-center items-center">
+                                {display == 'REQUEST' ? null : <button onClick={() => handleEdit()} className="px-4 py-2 border-2 border-slate-500 text-slate-500 font-semibold rounded-lg transition duration-300 hover:bg-blue-100 hover:border-blue-400">
+                                    Edit
+                                </button>}
 
-                    //                 {chosenTask.status !== "COMPLETED" ? (
-                    //                     <form onSubmit={handleDone}>
-                    //                         <button type="submit" className="px-4 py-2 border-2 border-slate-500 text-slate-500 font-semibold rounded-lg transition duration-300 hover:bg-blue-100 hover:border-blue-400">
-                    //                             Mark as Done
-                    //                         </button>
-                    //                     </form>
-                    //                 ) : (
-                    //                     <button disabled onClick={() => handleDone()} className="px-4 py-2 border-2 border-slate-400 text-slate-300 font-semibold rounded-lg">
-                    //                         Marked as Done
-                    //                     </button>
-                    //                 )}
-                    //             </div>
-                    //         </div>
-                    //     )
-                    // )}
-                ) : (null)}
+                                {display == 'REQUEST' ? null : chosenTask.status !== "COMPLETED" ? (
+                                    <form onSubmit={handleDone}>
+                                        <button type="submit" className="px-4 py-2 border-2 border-slate-500 text-slate-500 font-semibold rounded-lg transition duration-300 hover:bg-blue-100 hover:border-blue-400">
+                                            Mark as Done
+                                        </button>
+                                    </form>
+                                ) : (
+                                    <button disabled onClick={() => handleDone()} className="px-4 py-2 border-2 border-slate-400 text-slate-300 font-semibold rounded-lg">
+                                        Marked as Done
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    )
+                )}
             </main>
         </Layout>
     )
