@@ -127,7 +127,8 @@ export default function SharedTask() {
     // ]
 
     const [sharedTask, setSharedTask] = useState<{ createdAt: string, id: string, task: { createdAt: string, creatorId: string, deadline: string, id: string, title: string, description: string, status: string, priority: string, updatedAt: string }, taskId: string, userId: string }[]>([]);
-    const [shareRequest, setShareRequest] = useState<{ createdAt: string, id: string, receiverId: string, senderId: string, status: string, taskId: string }[]>([]);
+    const [shareRequest, setShareRequest] = useState<{ createdAt: string, id: string, receiverId: string, senderId: string, status: string, taskId: string, task: { createdAt: string, creatorId: string, deadline: string, id: string, title: string, description: string, status: string, priority: string, updatedAt: string },}[]>([]);
+    
     const [tasks, setTasks] = useState<{ id: string; title: string; description: string; status: string; priority?: string; deadline: string; creatorId: number; creator: string; sharedUser: number[]; createdAt: Date; updatedAt: Date; }[]>([]);
     const [loading, setLoading] = useState(true);
     const [display, setDisplay] = useState("TASK");
@@ -164,20 +165,14 @@ export default function SharedTask() {
     }
 
     const now = new Date();
-    const task = sharedTask.filter((task) => new Date(task.task.deadline) <= now && task.task.status !== "COMPLETED");
+    const task = sharedTask.filter((task) => new Date(task.task.deadline) >= now && task.task.status !== "COMPLETED");
     const completedTask = sharedTask.filter(task => task.task.status === "COMPLETED");
 
     const declinedShareRequest = shareRequest.filter(request => request.status === "DECLINED");
-    const declinedTask = tasks.filter(task =>
-        declinedShareRequest.some(request => request.taskId === task.id)
-    );
 
-    const missedTask = sharedTask.filter(task => task.task.status !== "COMPLETED" && new Date(task.task.deadline) >= now);
+    const missedTask = sharedTask.filter(task => task.task.status !== "COMPLETED" && new Date(task.task.deadline) <= now);
 
     const requestedShareRequest = shareRequest.filter(request => request.status === "PENDING");
-    const requestedTask = tasks.filter(task =>
-        requestedShareRequest.some(request => request.taskId === task.id)
-    );
 
     function handleClicked({ task }: { task: any }) {
         console.log(task)
@@ -278,6 +273,22 @@ export default function SharedTask() {
 
     async function handleAccept({ requestedTask }: { requestedTask: any }) {
 
+    }
+
+    async function handleDecline({ requestedTask }: { requestedTask: any }) {
+        try {
+            await fetch("/api/data/sharedTask/", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ sharedTaskId: requestedTask.id, data: { status: "DECLINED" } }),
+            });
+
+            console.log("declined successfully");
+        } catch (error) {
+            console.log("Error Declining", error);
+        }
     }
 
 
@@ -397,17 +408,17 @@ export default function SharedTask() {
                                     )) : <div className="text-center">No completed task for now.</div> : null
                                     }
 
-                                    {display === "DECLINED" ? declinedTask.length > 0 ? declinedTask.map((task, index) => (
+                                    {display === "DECLINED" ? declinedShareRequest.length > 0 ? declinedShareRequest.map((task, index) => (
                                         <div
                                             key={index}
                                             className="flex items-center justify-between p-4  border-b last:border-0 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300"
                                         >
-                                            <div onClick={() => handleClicked({ task })} className="h-[100%] w-[100%] flex items-center justify-between">
+                                            <div onClick={() => handleClicked({ task: task.task })} className="h-[100%] w-[100%] flex items-center justify-between">
                                                 <div className=" font-medium text-gray-900 truncate dark:text-white">
-                                                    {task.title}
+                                                    {task.task.title}
                                                 </div>
                                                 <div className="w-1/4 text-md text-[1rem] text-gray-600 dark:text-gray-400">
-                                                    Due: {formatDate(task.deadline)}
+                                                    Due: {formatDate(task.task.deadline)}
                                                 </div>
                                             </div>
                                             <div className="flex justify-end">
@@ -471,17 +482,17 @@ export default function SharedTask() {
                                     )) : <div className="text-center">No missed task for now.</div> : null
                                     }
 
-                                    {display === "REQUEST" ? requestedTask.length > 0 ? requestedTask.map((task, index) => (
+                                    {display === "REQUEST" ? requestedShareRequest.length > 0 ? requestedShareRequest.map((task, index) => (
                                         <div
                                             key={index}
                                             className="mb-[1rem] px-[1rem] flex items-center justify-between h-[4rem] bg-white border-b last:border-0 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300"
                                         >
-                                            <div onClick={() => handleClicked({ task })} className="h-[100%] w-[100%] flex items-center justify-between">
+                                            <div onClick={() => handleClicked({ task: task.task })} className="h-[100%] w-[100%] flex items-center justify-between">
                                                 <div className=" font-medium text-gray-900 truncate dark:text-white">
-                                                    {task.title}
+                                                    {task.task.title}
                                                 </div>
                                                 <div className="w-1/4 text-md text-[1rem] text-gray-600 dark:text-gray-400">
-                                                    Due: {formatDate(task.deadline)}
+                                                    Due: {formatDate(task.task.deadline)}
                                                 </div>
                                             </div>
                                             <div className="flex justify-end gap-[0.7rem]">
@@ -492,16 +503,15 @@ export default function SharedTask() {
                                                     <AlertDialogTrigger className="p-2 rounded-full bg-blue-500 text-white hover:bg-red-600 cursor-pointer"><ImCross className="text-red" /></AlertDialogTrigger>
                                                     <AlertDialogContent>
                                                         <AlertDialogHeader>
-                                                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                                                             <AlertDialogDescription>
-                                                                This action cannot be undone. This will permanently delete your task
-                                                                and remove your data from our servers.
+                                                                This action cannot be undone.
                                                             </AlertDialogDescription>
                                                         </AlertDialogHeader>
                                                         <AlertDialogFooter>
                                                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                            <form onSubmit={() => handleDelete({ task })}>
-                                                                <AlertDialogAction type="submit">Delete</AlertDialogAction>
+                                                            <form onSubmit={() => handleDecline({ requestedTask: task })}>
+                                                                <AlertDialogAction type="submit">Decline</AlertDialogAction>
                                                             </form>
                                                         </AlertDialogFooter>
                                                     </AlertDialogContent>
@@ -543,7 +553,7 @@ export default function SharedTask() {
                                         )}
                                     </div>
                                 </div>
-                                {display == "REQUEST" ? null : <div className="self-start">
+                                {display == "REQUEST" || display == 'DECLINED'? null : <div className="self-start">
                                     <button>share</button>
                                 </div>}
                             </div>
@@ -561,11 +571,11 @@ export default function SharedTask() {
                             </div>
 
                             <div className="buttons w-[80%] mt-[3rem] mx-auto gap-[1rem] flex justify-center items-center">
-                                {display == 'REQUEST' ? null : <button onClick={() => handleEdit()} className="px-4 py-2 border-2 border-slate-500 text-slate-500 font-semibold rounded-lg transition duration-300 hover:bg-blue-100 hover:border-blue-400">
+                                {display == 'REQUEST' || display == 'DECLINED' ? null : <button onClick={() => handleEdit()} className="px-4 py-2 border-2 border-slate-500 text-slate-500 font-semibold rounded-lg transition duration-300 hover:bg-blue-100 hover:border-blue-400">
                                     Edit
                                 </button>}
 
-                                {display == 'REQUEST' ? null : chosenTask.status !== "COMPLETED" ? (
+                                {display == 'REQUEST' || display == 'DECLINED' ? null : chosenTask.status !== "COMPLETED" ? (
                                     <form onSubmit={handleDone}>
                                         <button type="submit" className="px-4 py-2 border-2 border-slate-500 text-slate-500 font-semibold rounded-lg transition duration-300 hover:bg-blue-100 hover:border-blue-400">
                                             Mark as Done

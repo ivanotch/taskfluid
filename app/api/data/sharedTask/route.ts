@@ -40,17 +40,19 @@ export async function GET(req: Request) {
             where: { userId: decoded.id }, // Replace userId with the authenticated user's ID
             include: {
                 task: true, // Include the task details
+                user: true,
             },
         });
 
         const sharedRequest = await prisma.sharedTaskRequest.findMany({
             where: { receiverId: decoded.id }, // Replace userId with the authenticated user's ID
+            include: {task: true}
         });
 
 
-        console.log("Decoded user ID:", decoded.id);
-        console.log("Tasks found:", tasks);
-        console.log("request found:", sharedRequest);
+        // console.log("Decoded user ID:", decoded.id);
+        // console.log("Tasks found:", tasks);
+        // console.log("request found:", sharedRequest);
 
 
         // ✅ Return JSON response
@@ -60,4 +62,35 @@ export async function GET(req: Request) {
         console.error("An unexpected error occurred:", error);
         return new Response(JSON.stringify({ error: "An unexpected error occurred" }), { status: 500 });
     }
+}
+
+export async function PUT(req: Request) {
+    try {
+        
+        const { sharedTaskId, data } = await req.json();
+
+        if (!sharedTaskId || !data) {
+            return new Response(JSON.stringify({ error: "Missing required fields" }), { status: 400 });
+        }
+        
+        const updateShareTask = await prisma.sharedTaskRequest.update({
+            where: { id: sharedTaskId },
+            data: { status: data.status },
+        });
+
+        if (updateShareTask) {
+            console.log("jajajajajajajajajajajajajajjjajajjaajjaaj")
+            console.log(updateShareTask)
+        }
+
+        return new Response(JSON.stringify({ sharedTaskId }), {
+            status: 200,
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+    } catch (error) {
+        return new Response(JSON.stringify({ error: "Failed to decline task" }), { status: 500 });
+    }
+
 }
